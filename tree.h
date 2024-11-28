@@ -1,8 +1,21 @@
 #ifndef TREE_H
 #define TREE_H
 
+enum op {
+        ADD = 0,
+        SUB = 1,
+        MUL = 2,
+        DIV = 3
+};
+
+enum type {
+        NUM = 0,
+        VAR = 1,
+        OP = 2
+};
+
 struct node {
-        int type;
+        enum type type;
         int value;
         struct node *left;
         struct node *right;
