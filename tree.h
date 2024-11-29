@@ -14,6 +14,11 @@ enum type {
         OP = 2
 };
 
+struct op_desc {
+        enum op val;
+        const char *name;
+};
+
 struct node {
         enum type type;
         int value;
