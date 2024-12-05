@@ -5,6 +5,7 @@
 #include "draw.h"
 
 static struct node *differentiate(struct node *curr, struct node *last);
+static struct node *parse_node(struct node *curr, struct node *last);
 static struct node *const_rule(struct node *curr, struct node *last);
 static struct node *sum_rule(struct node *curr, struct node *last);
 
@@ -22,15 +23,22 @@ static struct node *differentiate(struct node *curr, struct node *last)
 
         struct node *node = NULL;
 
-        if (curr->type == NUM)
-                node = const_rule(curr, last);
-        else if (curr->type == OP && curr->value == ADD)
-                node = sum_rule(curr, last);
+        node = parse_node(curr, last);
 
         node->left = differentiate(curr->left, node);
         node->right = differentiate(curr->right, node);
 
         return node;
+}
+
+static struct node *parse_node(struct node *curr, struct node *last)
+{
+        if (curr->type == NUM)
+                return const_rule(curr, last);
+        else if (curr->type == OP && curr->value == ADD)
+                return sum_rule(curr, last);
+
+        return NULL;
 }
 
 static struct node *const_rule(struct node *curr, struct node *last)
