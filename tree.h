@@ -5,10 +5,11 @@ enum op {
         ADD = 0,
         SUB = 1,
         MUL = 2,
-        DIV = 3
+        DIV = 3,
+        POW = 4,
 };
 
-enum type {
+enum node_type {
         NUM = 0,
         VAR = 1,
         OP = 2
@@ -20,7 +21,7 @@ struct op_desc {
 };
 
 struct node {
-        enum type type;
+        enum node_type type;
         int value;
         struct node *left;
         struct node *right;

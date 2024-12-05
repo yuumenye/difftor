@@ -121,7 +121,8 @@ static void get_op_name(struct node *node, char *name, const int namelen)
         struct op_desc ops[] = {ADD, "+",
                                 SUB, "-",
                                 MUL, "*",
-                                DIV, "/"}; 
+                                DIV, "/",
+                                POW, "^"};
         size_t nops = sizeof(ops)/sizeof(ops[0]); 
 
         for (size_t i = 0; i < nops; ++i)
