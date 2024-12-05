@@ -6,6 +6,7 @@
 
 static struct node *differentiate(struct node *curr, struct node *last);
 static struct node *const_rule(struct node *curr, struct node *last);
+static struct node *sum_rule(struct node *curr, struct node *last);
 
 struct tree *tree_differentiate(struct tree *tree)
 {
@@ -23,6 +24,8 @@ static struct node *differentiate(struct node *curr, struct node *last)
 
         if (curr->type == NUM)
                 node = const_rule(curr, last);
+        else if (curr->type == OP && curr->value == ADD)
+                node = sum_rule(curr, last);
 
         node->left = differentiate(curr->left, node);
         node->right = differentiate(curr->right, node);
@@ -37,6 +40,20 @@ static struct node *const_rule(struct node *curr, struct node *last)
         node->type = NUM;
         node->value = 0;
         node->parent = last;
+
+        return node;
+}
+
+static struct node *sum_rule(struct node *curr, struct node *last)
+{
+        struct node *node = node_ctor();
+
+        node->type = OP;
+        node->value = ADD;
+        node->parent = last;
+
+        node->left = differentiate(curr->left, node);
+        node->right = differentiate(curr->right, node);
 
         return node;
 }
