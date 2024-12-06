@@ -7,13 +7,14 @@
 static struct node *differentiate(struct node *curr, struct node *last);
 static struct node *parse_node(struct node *curr, struct node *last);
 static struct node *const_rule(struct node *curr, struct node *last);
+static struct node *const_rule_cont(struct node *curr, struct node *last);
 static struct node *sum_rule(struct node *curr, struct node *last);
+static struct node *sum_rule_cont(struct node *curr, struct node *last);
 
 struct tree *tree_differentiate(struct tree *tree)
 {
         struct tree *dtree = tree_ctor();
         dtree->root = differentiate(tree->root, NULL);
-
         return dtree;
 }
 
@@ -32,14 +33,32 @@ static struct node *differentiate(struct node *curr, struct node *last)
 
 static struct node *parse_node(struct node *curr, struct node *last)
 {
+        struct node *node = NULL;
+
+        struct node *(*funcs[])(struct node *, struct node *) =
+                        {const_rule_cont, sum_rule_cont};
+
+        int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
+
+        for (int i = 0; i < nfuncs; ++i)
+                if (node = funcs[i](curr, last))
+                        break;
+
+        return node;
+}
+
+static struct node *const_rule_cont(struct node *curr, struct node *last)
+{
         if (curr->type == NUM)
                 return const_rule(curr, last);
-        else if (curr->type == OP && curr->value == ADD)
+
+        return NULL;
+}
+
+static struct node *sum_rule_cont(struct node *curr, struct node *last)
+{
+        if (curr->type == OP && curr->val == ADD)
                 return sum_rule(curr, last);
-        else {
-                fprintf(stderr, "error: couldn't parse node\n");
-                exit(1);
-        }
 
         return NULL;
 }
@@ -49,7 +68,7 @@ static struct node *const_rule(struct node *curr, struct node *last)
         struct node *node = node_ctor();
 
         node->type = NUM;
-        node->value = 0;
+        node->val = 0;
         node->parent = last;
 
         return node;
@@ -60,7 +79,7 @@ static struct node *sum_rule(struct node *curr, struct node *last)
         struct node *node = node_ctor();
 
         node->type = OP;
-        node->value = ADD;
+        node->val = ADD;
         node->parent = last;
 
         node->left = differentiate(curr->left, node);

@@ -21,8 +21,8 @@ struct op_desc {
 };
 
 struct node {
-        enum node_type type;
-        int value;
+        int type;
+        int val;
         struct node *left;
         struct node *right;
         struct node *parent;
