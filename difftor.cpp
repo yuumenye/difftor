@@ -13,6 +13,7 @@ struct tree *tree_differentiate(struct tree *tree)
 {
         struct tree *dtree = tree_ctor();
         dtree->root = differentiate(tree->root, NULL);
+
         return dtree;
 }
 
@@ -21,9 +22,7 @@ static struct node *differentiate(struct node *curr, struct node *last)
         if (!curr)
                 return NULL;
 
-        struct node *node = NULL;
-
-        node = parse_node(curr, last);
+        struct node *node = parse_node(curr, last);
 
         node->left = differentiate(curr->left, node);
         node->right = differentiate(curr->right, node);
@@ -37,6 +36,10 @@ static struct node *parse_node(struct node *curr, struct node *last)
                 return const_rule(curr, last);
         else if (curr->type == OP && curr->value == ADD)
                 return sum_rule(curr, last);
+        else {
+                fprintf(stderr, "error: couldn't parse node\n");
+                exit(1);
+        }
 
         return NULL;
 }

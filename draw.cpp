@@ -54,8 +54,8 @@ static void write_all(FILE *file, struct node *node)
 static void write_params(FILE *file)
 {
         fprintf(file, "  node [\n");
-        fprintf(file, "    shape = \"box\";\n");
-        fprintf(file, "    style = \"rounded, filled\";\n");
+        fprintf(file, "    shape = \"circle\";\n");
+        fprintf(file, "    style = \"filled\";\n");
         fprintf(file, "  ]\n");
         fprintf(file, "  edge [label = \" \"];\n");
 }
