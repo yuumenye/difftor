@@ -43,6 +43,11 @@ static struct node *parse_node(struct node *curr, struct node *last)
         for (int i = 0; i < nfuncs; ++i)
                 if (node = funcs[i](curr, last))
                         break;
+        
+        if (!node) {
+                fprintf(stderr, "error: couldn't parse node\n");
+                exit(1);
+        }
 
         return node;
 }
