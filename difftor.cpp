@@ -11,6 +11,8 @@ static struct node *const_rule_cont(struct node *curr, struct node *last);
 static struct node *sum_rule(struct node *curr, struct node *last);
 static struct node *sum_rule_cont(struct node *curr, struct node *last);
 
+static struct node *search_var(struct node *node);
+
 struct tree *tree_differentiate(struct tree *tree)
 {
         struct tree *dtree = tree_ctor();
@@ -91,4 +93,24 @@ static struct node *sum_rule(struct node *curr, struct node *last)
         node->right = differentiate(curr->right, node);
 
         return node;
+}
+
+static struct node *search_var(struct node *node)
+{
+        if (!node)
+                return NULL;
+
+        struct node *found = NULL;
+
+        if (node->type == VAR)
+                found = node;
+
+        if (found)
+                return found;
+
+        found = search_var(node->left);
+        if (!found)
+                found = search_var(node->right);
+
+        return found;
 }
