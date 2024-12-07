@@ -5,11 +5,12 @@
 #include "draw.h"
 
 static struct node *differentiate(struct node *curr, struct node *last);
-static struct node *parse_node(struct node *curr, struct node *last);
 static struct node *const_rule(struct node *curr, struct node *last);
 static struct node *const_rule_cont(struct node *curr, struct node *last);
 static struct node *sum_rule(struct node *curr, struct node *last);
 static struct node *sum_rule_cont(struct node *curr, struct node *last);
+static struct node *power_rule(struct node *curr, struct node *last);
+static struct node *power_rule_cont(struct node *curr, struct node *last);
 
 static struct node *search_var(struct node *node);
 void fill_node_params(struct node *node, int type, int val,
@@ -24,23 +25,10 @@ struct tree *tree_differentiate(struct tree *tree)
 
 static struct node *differentiate(struct node *curr, struct node *last)
 {
-        if (!curr)
-                return NULL;
-
-        struct node *node = parse_node(curr, last);
-
-        node->left = differentiate(curr->left, node);
-        node->right = differentiate(curr->right, node);
-
-        return node;
-}
-
-static struct node *parse_node(struct node *curr, struct node *last)
-{
         struct node *node = NULL;
 
         struct node *(*funcs[])(struct node *, struct node *) =
-                        {const_rule_cont, sum_rule_cont};
+                        {const_rule_cont, sum_rule_cont, power_rule_cont};
 
         int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
 
@@ -70,6 +58,13 @@ static struct node *sum_rule_cont(struct node *curr, struct node *last)
         return NULL;
 }
 
+static struct node *power_rule_cont(struct node *curr, struct node *last)
+{
+        if (curr->type == OP && curr->val == POW)
+                return power_rule(curr, last);
+        return NULL;
+}
+
 static struct node *const_rule(struct node *curr, struct node *last)
 {
         struct node *node = node_ctor();
@@ -83,6 +78,27 @@ static struct node *sum_rule(struct node *curr, struct node *last)
         fill_node_params(node, OP, ADD, differentiate(curr->left, node),
                         differentiate(curr->right, node), last);
         return node;
+}
+
+static struct node *power_rule(struct node *curr, struct node *last)
+{
+        struct node *mul = node_ctor();
+        struct node *num1 = node_ctor();
+        struct node *pow = node_ctor();
+        struct node *num2 = node_ctor();
+        struct node *var = node_ctor();
+        struct node *sub = node_ctor();
+        struct node *num3 = node_ctor();
+
+        fill_node_params(mul, OP, MUL, pow, num1, last);
+        fill_node_params(num1, NUM, curr->right->val, NULL, NULL, mul);
+        fill_node_params(pow, OP, POW, var, sub, mul);
+        fill_node_params(var, VAR, curr->left->val, NULL, NULL, pow);
+        fill_node_params(sub, OP, SUB, num2, num3, pow);
+        fill_node_params(num2, NUM, curr->right->val, NULL, NULL, sub);
+        fill_node_params(num3, NUM, 1, NULL, NULL, sub);
+
+        return mul;
 }
 
 void fill_node_params(struct node *node, int type, int val,
