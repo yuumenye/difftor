@@ -12,6 +12,8 @@ static struct node *sum_rule(struct node *curr, struct node *last);
 static struct node *sum_rule_cont(struct node *curr, struct node *last);
 
 static struct node *search_var(struct node *node);
+void fill_node_params(struct node *node, int type, int val,
+                struct node *left, struct node *right, struct node *parent);
 
 struct tree *tree_differentiate(struct tree *tree)
 {
@@ -58,7 +60,6 @@ static struct node *const_rule_cont(struct node *curr, struct node *last)
 {
         if (curr->type == NUM)
                 return const_rule(curr, last);
-
         return NULL;
 }
 
@@ -66,33 +67,35 @@ static struct node *sum_rule_cont(struct node *curr, struct node *last)
 {
         if (curr->type == OP && curr->val == ADD)
                 return sum_rule(curr, last);
-
         return NULL;
 }
 
 static struct node *const_rule(struct node *curr, struct node *last)
 {
         struct node *node = node_ctor();
-
-        node->type = NUM;
-        node->val = 0;
-        node->parent = last;
-
+        fill_node_params(node, NUM, 0, NULL, NULL, last);
         return node;
 }
 
 static struct node *sum_rule(struct node *curr, struct node *last)
 {
         struct node *node = node_ctor();
-
-        node->type = OP;
-        node->val = ADD;
-        node->parent = last;
-
-        node->left = differentiate(curr->left, node);
-        node->right = differentiate(curr->right, node);
-
+        fill_node_params(node, OP, ADD, differentiate(curr->left, node),
+                        differentiate(curr->right, node), last);
         return node;
+}
+
+void fill_node_params(struct node *node, int type, int val,
+                struct node *left, struct node *right, struct node *parent)
+{
+        if (!node)
+                return;
+
+        node->type = type;
+        node->val = val;
+        node->left = left;
+        node->right = right;
+        node->parent = parent;
 }
 
 static struct node *search_var(struct node *node)
