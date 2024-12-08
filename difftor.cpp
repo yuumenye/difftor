@@ -15,6 +15,8 @@ static struct node *differentiate_var(struct node *curr, struct node *last);
 static struct node *differentiate_var_cont(struct node *curr, struct node *last);
 static struct node *product_rule(struct node *curr, struct node *last);
 static struct node *product_rule_cont(struct node *curr, struct node *last);
+static struct node *quotient_rule(struct node *curr, struct node *last);
+static struct node *quotient_rule_cont(struct node *curr, struct node *last);
 
 static struct node *search_var(struct node *node);
 
@@ -31,7 +33,8 @@ static struct node *differentiate(struct node *curr, struct node *last)
 
         struct node *(*funcs[])(struct node *, struct node *) =
                         {const_rule_cont, sum_rule_cont, power_rule_cont,
-                         differentiate_var_cont, product_rule_cont};
+                         differentiate_var_cont, product_rule_cont,
+                         quotient_rule_cont};
 
         int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
 
@@ -80,6 +83,36 @@ static struct node *product_rule_cont(struct node *curr, struct node *last)
         if (curr->type == OP && curr->val == MUL)
                 return product_rule(curr, last);
         return NULL;
+}
+
+static struct node *quotient_rule_cont(struct node *curr, struct node *last)
+{
+        if (curr->type == OP && curr->val == DIV)
+                return quotient_rule(curr, last);
+        return NULL;
+}
+
+static struct node *quotient_rule(struct node *curr, struct node *last)
+{
+        struct node *div = node_ctor();
+        struct node *sub = node_ctor();
+        struct node *mul1 = node_ctor();
+        struct node *mul2 = node_ctor();
+        struct node *n1 = copy_subtree(curr->left, mul2);
+        struct node *n2 = copy_subtree(curr->right, mul1);
+        struct node *d1 = differentiate(curr->left, mul1);
+        struct node *d2 = differentiate(curr->right, mul2);
+        struct node *pow = node_ctor();
+        struct node *num = node_ctor();
+        struct node *n3 = copy_subtree(curr->right, pow);
+
+        fill_node_params(div, OP, DIV, sub, pow, last);
+        fill_node_params(sub, OP, SUB, mul1, mul2, div);
+        fill_node_params(mul1, OP, MUL, d1, n2, sub);
+        fill_node_params(mul2, OP, MUL, n1, d2, sub);
+        fill_node_params(pow, OP, POW, n3, num, div);
+        fill_node_params(num, NUM, 2, NULL, NULL, pow);
+        return div;
 }
 
 static struct node *product_rule(struct node *curr, struct node *last)
