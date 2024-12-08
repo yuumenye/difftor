@@ -13,10 +13,10 @@ static struct node *power_rule(struct node *curr, struct node *last);
 static struct node *power_rule_cont(struct node *curr, struct node *last);
 static struct node *differentiate_var(struct node *curr, struct node *last);
 static struct node *differentiate_var_cont(struct node *curr, struct node *last);
+static struct node *product_rule(struct node *curr, struct node *last);
+static struct node *product_rule_cont(struct node *curr, struct node *last);
 
 static struct node *search_var(struct node *node);
-void fill_node_params(struct node *node, enum val_type type, int val,
-                struct node *left, struct node *right, struct node *parent);
 
 struct tree *tree_differentiate(struct tree *tree)
 {
@@ -31,7 +31,7 @@ static struct node *differentiate(struct node *curr, struct node *last)
 
         struct node *(*funcs[])(struct node *, struct node *) =
                         {const_rule_cont, sum_rule_cont, power_rule_cont,
-                         differentiate_var};
+                         differentiate_var_cont, product_rule_cont};
 
         int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
 
@@ -75,6 +75,29 @@ static struct node *differentiate_var_cont(struct node *curr, struct node *last)
         return NULL;
 }
 
+static struct node *product_rule_cont(struct node *curr, struct node *last)
+{
+        if (curr->type == OP && curr->val == MUL)
+                return product_rule(curr, last);
+        return NULL;
+}
+
+static struct node *product_rule(struct node *curr, struct node *last)
+{
+        struct node *add = node_ctor();
+        struct node *mul1 = node_ctor();
+        struct node *mul2 = node_ctor();
+        struct node *n1 = copy_subtree(curr->left, mul2);
+        struct node *n2 = copy_subtree(curr->right, mul1);
+        struct node *d1 = differentiate(curr->left, mul1);
+        struct node *d2 = differentiate(curr->right, mul2);
+
+        fill_node_params(add, OP, ADD, mul1, mul2, last);
+        fill_node_params(mul1, OP, MUL, d1, n2, add);
+        fill_node_params(mul2, OP, MUL, n1, d2, add);
+        return add;
+}
+
 static struct node *const_rule(struct node *curr, struct node *last)
 {
         struct node *node = node_ctor();
@@ -116,19 +139,6 @@ static struct node *power_rule(struct node *curr, struct node *last)
         fill_node_params(num3, NUM, 1, NULL, NULL, sub);
 
         return mul;
-}
-
-void fill_node_params(struct node *node, enum val_type type, int val,
-                struct node *left, struct node *right, struct node *parent)
-{
-        if (!node)
-                return;
-
-        node->type = type;
-        node->val = val;
-        node->left = left;
-        node->right = right;
-        node->parent = parent;
 }
 
 static struct node *search_var(struct node *node)

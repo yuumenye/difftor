@@ -45,3 +45,30 @@ void node_dtor(struct node *node)
         free(node);
         node = NULL;
 }
+
+void fill_node_params(struct node *node, enum val_type type, int val,
+                struct node *left, struct node *right, struct node *parent)
+{
+        if (!node)
+                return;
+
+        node->type = type;
+        node->val = val;
+        node->left = left;
+        node->right = right;
+        node->parent = parent;
+}
+
+
+struct node *copy_subtree(struct node *node, struct node *parent)
+{
+        if (!node)
+                return NULL;
+
+        struct node *copy = node_ctor();
+        fill_node_params(copy, node->type, node->val,
+                        copy_subtree(node->left, copy),
+                        copy_subtree(node->right, copy),
+                        parent);
+        return copy;
+}

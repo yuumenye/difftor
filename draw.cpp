@@ -97,13 +97,13 @@ static void write_edges(FILE *file, struct node *node)
 static void write_num(FILE *file, struct node *node)
 {
         fprintf(file, "  n%p [label = \"%d\", fillcolor = \"#FFF8DE\"];\n",
-                        node, node->value);
+                        node, node->val);
 }
 
 static void write_var(FILE *file, struct node *node)
 {
         fprintf(file, "  n%p [label = \"%c\", fillcolor = \"#C5D3E8\"];\n",
-                        node, node->value);
+                        node, node->val);
 }
 
 static void write_op(FILE *file, struct node *node)
@@ -126,7 +126,7 @@ static void get_op_name(struct node *node, char *name, const int namelen)
         size_t nops = sizeof(ops)/sizeof(ops[0]); 
 
         for (size_t i = 0; i < nops; ++i)
-                if (node->value == ops[i].val) {
+                if (node->val == ops[i].val) {
                         strncpy(name, ops[i].name, namelen);
                         break;
                 }

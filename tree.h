@@ -37,4 +37,7 @@ void tree_dtor(struct tree *tree);
 struct node *node_ctor(void);
 void node_dtor(struct node *node);
 
+void fill_node_params(struct node *node, enum val_type type, int val,
+                struct node *left, struct node *right, struct node *parent);
+struct node *copy_subtree(struct node *node, struct node *parent);
 #endif
