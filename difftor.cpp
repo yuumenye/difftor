@@ -155,23 +155,25 @@ static struct node *sum_rule(struct node *curr, struct node *last)
 
 static struct node *power_rule(struct node *curr, struct node *last)
 {
-        struct node *mul = node_ctor();
+        struct node *mul1 = node_ctor();
         struct node *num1 = node_ctor();
         struct node *pow = node_ctor();
         struct node *num2 = node_ctor();
-        struct node *var = node_ctor();
+        struct node *var = copy_subtree(curr->left, pow);
         struct node *sub = node_ctor();
         struct node *num3 = node_ctor();
+        struct node *mul2 = node_ctor();
+        struct node *inner = differentiate(curr->left, mul2);
 
-        fill_node_params(mul, OP, MUL, pow, num1, last);
-        fill_node_params(num1, NUM, curr->right->val, NULL, NULL, mul);
-        fill_node_params(pow, OP, POW, var, sub, mul);
-        fill_node_params(var, VAR, curr->left->val, NULL, NULL, pow);
+        fill_node_params(mul1, OP, MUL, num1, mul2, last);
+        fill_node_params(num1, NUM, curr->right->val, NULL, NULL, mul1);
+        fill_node_params(pow, OP, POW, var, sub, mul2);
         fill_node_params(sub, OP, SUB, num2, num3, pow);
         fill_node_params(num2, NUM, curr->right->val, NULL, NULL, sub);
         fill_node_params(num3, NUM, 1, NULL, NULL, sub);
+        fill_node_params(mul2, OP, MUL, pow, inner, mul1);
 
-        return mul;
+        return mul1;
 }
 
 static struct node *search_var(struct node *node)
