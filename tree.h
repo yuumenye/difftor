@@ -9,7 +9,7 @@ enum op {
         POW = 4,
 };
 
-enum node_type {
+enum val_type {
         NUM = 0,
         VAR = 1,
         OP = 2
@@ -21,7 +21,7 @@ struct op_desc {
 };
 
 struct node {
-        int type;
+        enum val_type type;
         int val;
         struct node *left;
         struct node *right;

@@ -11,9 +11,11 @@ static struct node *sum_rule(struct node *curr, struct node *last);
 static struct node *sum_rule_cont(struct node *curr, struct node *last);
 static struct node *power_rule(struct node *curr, struct node *last);
 static struct node *power_rule_cont(struct node *curr, struct node *last);
+static struct node *differentiate_var(struct node *curr, struct node *last);
+static struct node *differentiate_var_cont(struct node *curr, struct node *last);
 
 static struct node *search_var(struct node *node);
-void fill_node_params(struct node *node, int type, int val,
+void fill_node_params(struct node *node, enum val_type type, int val,
                 struct node *left, struct node *right, struct node *parent);
 
 struct tree *tree_differentiate(struct tree *tree)
@@ -28,7 +30,8 @@ static struct node *differentiate(struct node *curr, struct node *last)
         struct node *node = NULL;
 
         struct node *(*funcs[])(struct node *, struct node *) =
-                        {const_rule_cont, sum_rule_cont, power_rule_cont};
+                        {const_rule_cont, sum_rule_cont, power_rule_cont,
+                         differentiate_var};
 
         int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
 
@@ -65,10 +68,24 @@ static struct node *power_rule_cont(struct node *curr, struct node *last)
         return NULL;
 }
 
+static struct node *differentiate_var_cont(struct node *curr, struct node *last)
+{
+        if (curr->type == VAR)
+                return differentiate_var(curr, last);
+        return NULL;
+}
+
 static struct node *const_rule(struct node *curr, struct node *last)
 {
         struct node *node = node_ctor();
         fill_node_params(node, NUM, 0, NULL, NULL, last);
+        return node;
+}
+
+static struct node *differentiate_var(struct node *curr, struct node *last)
+{
+        struct node *node = node_ctor();
+        fill_node_params(node, NUM, 1, NULL, NULL, last);
         return node;
 }
 
@@ -101,7 +118,7 @@ static struct node *power_rule(struct node *curr, struct node *last)
         return mul;
 }
 
-void fill_node_params(struct node *node, int type, int val,
+void fill_node_params(struct node *node, enum val_type type, int val,
                 struct node *left, struct node *right, struct node *parent)
 {
         if (!node)
