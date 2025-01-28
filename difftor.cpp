@@ -180,7 +180,7 @@ static struct node *quotient_rule(struct node *curr)
 
         struct node *node = _DIV(_SUB(_MUL(differentiate(u), subtree_copy(v)),
                                 _MUL(subtree_copy(u), differentiate(v))),
-                        _POW(v, _NUM(2, NULL, NULL)));
+                        _POW(subtree_copy(v), _NUM(2, NULL, NULL)));
 
         return node;
 }
