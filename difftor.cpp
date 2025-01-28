@@ -9,6 +9,7 @@
 #include "dsl.h"
 #include "draw.h"
 #include "tree.h"
+#include "optimizer.h"
 #include "difftor.h"
 
 static struct node *differentiate(struct node *curr);
@@ -31,10 +32,6 @@ static struct node *product_rule(struct node *curr);
 static struct node *quotient_rule_cont(struct node *curr);
 static struct node *quotient_rule(struct node *curr);
 
-static void tree_optimize(struct tree *tree);
-static struct node *wrap_const(struct node *node);
-static struct node *perform_arithmetic(struct node *node);
-
 struct tree *tree_differentiate(struct tree *tree)
 {
         tree_draw(tree);
@@ -55,7 +52,7 @@ static struct node *differentiate(struct node *curr)
         int nfuncs = sizeof(funcs)/sizeof(funcs[0]);
 
         for (int i = 0; i < nfuncs; ++i)
-                if (node = funcs[i](curr))
+                if ((node = funcs[i](curr)) != NULL)
                         break;
         
         if (!node) {
@@ -168,68 +165,4 @@ static struct node *quotient_rule(struct node *curr)
                         _POW(v, _NUM(2, NULL, NULL)));
 
         return node;
-}
-
-static void tree_optimize(struct tree *tree)
-{
-        assert(tree != NULL);
-
-        tree_draw(tree);
-        tree->root = wrap_const(tree->root);
-        tree_draw(tree);
-}
-
-static struct node *wrap_const(struct node *node)
-{
-        if (!node)
-                return NULL;
-
-        struct node *node_left = wrap_const(node->left);
-
-        if (node_left != node->left) {
-                subtree_dtor(node->left);
-                node->left = node_left;
-        }
-
-        struct node *node_right = wrap_const(node->right);
-
-        if (node_right != node->right) {
-                subtree_dtor(node->right);
-                node->right = node_right;
-        }
-
-        return perform_arithmetic(node);
-}
-
-static struct node *perform_arithmetic(struct node *node)
-{
-        if (node->type != OP)
-                return node;
-        if (node->left->type != NUM || node->right->type != NUM)
-                return node;
-
-        int a = node->left->val;
-        int b = node->right->val;
-
-        struct node *result = _NUM(0, NULL, NULL);
-
-        switch (node->val) {
-                case ADD:
-                       result->val = a + b;
-                       break;
-                case SUB:
-                       result->val = a - b;
-                       break;
-                case MUL:
-                       result->val = a * b;
-                       break;
-                case DIV:
-                       result->val = a / b;
-                       break;
-                case POW:
-                       result->val = pow(a, b);
-                       break;
-        }
-
-        return result;
 }
