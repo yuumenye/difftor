@@ -6,10 +6,8 @@
 #include "draw.h"
 #include "optimizer.h"
 
-static struct node *wrap_const(struct node *node);
+static struct node *wrap(struct node *node, struct node *(*compute)(struct node *node));
 static struct node *perform_arithmetic(struct node *node);
-
-static struct node *wrap_neutral(struct node *node);
 static struct node *remove_neutral(struct node *node);
 
 static struct node *times_one(struct node *node);
@@ -25,32 +23,32 @@ void tree_optimize(struct tree *tree)
         assert(tree != NULL);
 
         tree_draw(tree);
-        tree->root = wrap_const(tree->root);
+        tree->root = wrap(tree->root, perform_arithmetic);
         tree_draw(tree);
-        tree->root = wrap_neutral(tree->root);
+        tree->root = wrap(tree->root, remove_neutral);
         tree_draw(tree);
 }
 
-static struct node *wrap_const(struct node *node)
+static struct node *wrap(struct node *node, struct node *(*compute)(struct node *node))
 {
         if (!node)
                 return NULL;
 
-        struct node *node_left = wrap_const(node->left);
+        struct node *node_left = wrap(node->left, compute);
 
         if (node_left != node->left) {
-                subtree_dtor(node->left);
+                node_dtor(node->left);
                 node->left = node_left;
         }
 
-        struct node *node_right = wrap_const(node->right);
+        struct node *node_right = wrap(node->right, compute);
 
         if (node_right != node->right) {
-                subtree_dtor(node->right);
+                node_dtor(node->right);
                 node->right = node_right;
         }
 
-        return perform_arithmetic(node);
+        return compute(node);
 }
 
 static struct node *perform_arithmetic(struct node *node)
@@ -86,29 +84,10 @@ static struct node *perform_arithmetic(struct node *node)
                         exit(1);
         }
 
+        node_dtor(node->left);
+        node_dtor(node->right);
+
         return result;
-}
-
-static struct node *wrap_neutral(struct node *node)
-{
-        if (!node)
-                return NULL;
-
-        struct node *node_left = wrap_neutral(node->left);
-
-        if (node_left != node->left) {
-                node_dtor(node->left);
-                node->left = node_left;
-        }
-
-        struct node *node_right = wrap_neutral(node->right);
-
-        if (node_right != node->right) {
-                node_dtor(node->right);
-                node->right = node_right;
-        }
-
-        return remove_neutral(node);
 }
 
 static struct node *remove_neutral(struct node *node)
