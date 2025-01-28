@@ -36,6 +36,7 @@ void tree_dtor(struct tree *tree);
 struct node *node_ctor(enum val_type type, int val,
                 struct node *left, struct node *right);
 void node_dtor(struct node *node);
+void subtree_dtor(struct node *node);
 struct node *subtree_copy(struct node *node);
 
 #endif

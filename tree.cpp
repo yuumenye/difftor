@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include "tree.h"
 
-static void subtree_dtor(struct node *node);
-
 struct tree *tree_ctor(void)
 {
         struct tree *tree = (struct tree*) calloc(1, sizeof(struct tree));
@@ -21,7 +19,7 @@ void tree_dtor(struct tree *tree)
         tree = NULL;
 }
 
-static void subtree_dtor(struct node *node)
+void subtree_dtor(struct node *node)
 {
         if (!node)
                 return;

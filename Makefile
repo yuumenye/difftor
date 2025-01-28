@@ -3,7 +3,7 @@ $(CC) := g++
 all: difftor
 
 difftor: main.o tree.o draw.o difftor.o
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ -lm
 
 main.o: main.cpp
 	$(CC) main.cpp -c
