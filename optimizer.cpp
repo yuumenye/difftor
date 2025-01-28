@@ -96,13 +96,17 @@ static struct node *wrap_neutral(struct node *node)
 
         struct node *node_left = wrap_neutral(node->left);
 
-        if (node_left != node->left)
+        if (node_left != node->left) {
+                node_dtor(node->left);
                 node->left = node_left;
+        }
 
         struct node *node_right = wrap_neutral(node->right);
 
-        if (node_right != node->right)
+        if (node_right != node->right) {
+                node_dtor(node->right);
                 node->right = node_right;
+        }
 
         return remove_neutral(node);
 }
