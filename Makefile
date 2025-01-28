@@ -2,7 +2,7 @@ $(CC) := g++
 
 all: difftor
 
-difftor: main.o tree.o draw.o
+difftor: main.o tree.o draw.o difftor.o
 	$(CC) $^ -o $@
 
 main.o: main.cpp
@@ -13,6 +13,9 @@ tree.o: tree.cpp
 
 draw.o: draw.cpp
 	$(CC) draw.cpp -c
+
+difftor.o: difftor.cpp
+	$(CC) difftor.cpp -c
 
 clean:
 	rm -rf *.o difftor
