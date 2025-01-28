@@ -86,20 +86,21 @@ static void write_nodes(FILE *file, struct node *node)
 
 static void write_num(FILE *file, struct node *node)
 {
-        fprintf(file, "  n%p [label = \"%d\", fillcolor = \"#FFF8DE\"];\n",
+        fprintf(file, "  n%p [label = \"%lg\", fillcolor = \"#FFF8DE\"];\n",
                         node, node->val);
 }
 
 static void write_var(FILE *file, struct node *node)
 {
         fprintf(file, "  n%p [label = \"%c\", fillcolor = \"#C5D3E8\"];\n",
-                        node, node->val);
+                        node, (int) node->val);
 }
 
 static void write_op(FILE *file, struct node *node)
 {
         struct op_desc operations[] = {ADD, "+", SUB, "-", MUL, "*", DIV, "/",
-                POW, "^"};
+                POW, "^", SIN, "sin", COS, "cos", TAN, "tan", ASIN, "asin", ACOS,
+                "acos", ATAN, "atan", SINH, "sinh", COSH, "cosh", TANH, "tanh"};
         size_t n_operations = sizeof(operations)/sizeof(operations[0]);
 
         const int namelen = 5;

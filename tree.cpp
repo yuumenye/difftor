@@ -28,7 +28,7 @@ void subtree_dtor(struct node *node)
         node_dtor(node);
 }
 
-struct node *node_ctor(enum val_type type, int val,
+struct node *node_ctor(enum val_type type, double val,
                 struct node *left, struct node *right)
 {
         struct node *node = (struct node*) calloc(1, sizeof(struct node));

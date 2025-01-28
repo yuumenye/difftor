@@ -58,12 +58,12 @@ static struct node *perform_arithmetic(struct node *node)
         if (node->left->type != NUM || node->right->type != NUM)
                 return node;
 
-        int a = node->left->val;
-        int b = node->right->val;
+        double a = node->left->val;
+        double b = node->right->val;
 
         struct node *result = _NUM(0, NULL, NULL);
 
-        switch (node->val) {
+        switch ((int) node->val) {
                 case ADD:
                        result->val = a + b;
                        break;

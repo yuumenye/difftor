@@ -6,7 +6,17 @@ enum op_type {
         SUB,
         MUL,
         DIV,
-        POW
+        POW,
+        SIN,
+        COS,
+        TAN,
+        ASIN,
+        ACOS,
+        ATAN,
+        SINH,
+        COSH,
+        TANH,
+        LOG
 };
 
 enum val_type {
@@ -22,7 +32,7 @@ struct op_desc {
 
 struct node {
         enum val_type type;
-        int val;
+        double val;
         struct node *left;
         struct node *right;
 };
@@ -33,7 +43,7 @@ struct tree {
 
 struct tree *tree_ctor(void);
 void tree_dtor(struct tree *tree);
-struct node *node_ctor(enum val_type type, int val,
+struct node *node_ctor(enum val_type type, double val,
                 struct node *left, struct node *right);
 void node_dtor(struct node *node);
 void subtree_dtor(struct node *node);
