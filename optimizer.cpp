@@ -18,15 +18,20 @@ static struct node *pow_one(struct node *node);
 static struct node *pow_zero(struct node *node);
 static struct node *div_one(struct node *node);
 
+static int n_optimizations = 0; /* optimizations counter */
+
 void tree_optimize(struct tree *tree)
 {
         assert(tree != NULL);
 
-        tree_draw(tree);
-        tree->root = wrap(tree->root, perform_arithmetic);
-        tree_draw(tree);
-        tree->root = wrap(tree->root, remove_neutral);
-        tree_draw(tree);
+        int last_n_optimizations = 0;
+
+        do {
+                tree_draw(tree);
+                last_n_optimizations = n_optimizations;
+                tree->root = wrap(tree->root, perform_arithmetic);
+                tree->root = wrap(tree->root, remove_neutral);
+        } while (n_optimizations > last_n_optimizations);
 }
 
 static struct node *wrap(struct node *node, struct node *(*compute)(struct node *node))
@@ -87,6 +92,7 @@ static struct node *perform_arithmetic(struct node *node)
         node_dtor(node->left);
         node_dtor(node->right);
 
+        ++n_optimizations;
         return result;
 }
 
@@ -109,6 +115,7 @@ static struct node *remove_neutral(struct node *node)
         if (!result)
                 return node;
 
+        ++n_optimizations;
         return result;
 }
 
